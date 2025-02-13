@@ -42,11 +42,12 @@
                     </goals>
                 </execution>
             </executions>
-        </plugin>
-    </plugins>
-                  <configuration>
+                 <configuration>
     <mainClass>com.example.demo.DemoApplication</mainClass>
 </configuration>
+        </plugin>
+    </plugins>
+                  
 
 </build>
 
