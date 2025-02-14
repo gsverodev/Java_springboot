@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+    
+    environment {
+        // SonarQube Server URL
+        SONAR_URL = 'http://<sonar-ip>:9000/'  // Replace with your SonarQube server URL
+        // SonarQube Authentication Token (Optional)
+        SONAR_TOKEN = credentials('sonar-new')  // Replace with your SonarQube credentials ID if using Jenkins credentials
+    }
+
+    stages {
+       stage('Checkout Code') {
+    steps {
+        git branch: 'main', url: 'https://github.com/gsverodev/Java_springboot.git'
+    }
+}
+stage('Test') {
+            steps {
+                // Run unit tests
+                sh 'mvn test'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // Run SonarQube analysis
+                    sh """
+                        mvn sonar:sonar \
+                            -Dsonar.host.url=${SONAR_URL} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                    """
+                }
+            }
+        }
+    }
+ post {
+        success {
+            echo 'Build, tests, SonarQube analysis, and Docker build completed successfully.'
+        }
+        failure {
+            echo 'There was a failure in the pipeline.'
+        }
+    }
+}
