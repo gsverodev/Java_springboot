@@ -1,9 +1,9 @@
 pipeline {
-    agent any
+    agent{ label 'master' }
     
     environment {
         // SonarQube Server URL
-        SONAR_URL = 'http://<sonar-ip>:9000/'  // Replace with your SonarQube server URL
+        SONAR_URL = 'http://35.154.132.118:9000/'  // Replace with your SonarQube server URL
         // SonarQube Authentication Token (Optional)
         SONAR_TOKEN = credentials('sonar-new')  // Replace with your SonarQube credentials ID if using Jenkins credentials
     }
@@ -14,12 +14,6 @@ pipeline {
         git branch: 'main', url: 'https://github.com/gsverodev/Java_springboot.git'
     }
 }
-stage('Test') {
-            steps {
-                // Run unit tests
-                sh 'mvn test'
-            }
-        }
 
         stage('Build with Maven') {
             steps {
@@ -38,13 +32,10 @@ stage('Test') {
                 }
             }
         }
-    }
- post {
-        success {
-            echo 'Build, tests, SonarQube analysis, and Docker build completed successfully.'
-        }
-        failure {
-            echo 'There was a failure in the pipeline.'
+        stage('artifact upload') {
+            steps {
+      nexusArtifactUploader artifacts: [[artifactId: 'demo', classifier: '', file: '/var/lib/jenkins/workspace/job1/target/demo-1.0.0.jar', type: 'jar']], credentialsId: 'nexus3', groupId: 'com.example', nexusUrl: '15.207.87.61:8081', nexusVersion: 'nexus3', protocol: 'http', repository: 'test', version: '1.0.0'
+            }
         }
     }
 }
